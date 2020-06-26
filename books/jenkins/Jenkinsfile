@@ -57,12 +57,10 @@ pipeline {
                    '''
 
                 echo '### Creating a new app in DEV env ###'
-                //TODO: Create a new app and expose the service
 		sh '''        
 			oc project ${DEV_PROJECT}        
-			oc new-app --name books nodejs:8~${APP_GIT_URL} \        
-			--build-env npm_config_registry=${NEXUS_SERVER} \        
-			--context-dir ${APP_NAME}
+			oc new-app --name books nodejs:8~${APP_GIT_URL} --build-env npm_config_registry=${NEXUS_SERVER} --context-dir ${APP_NAME}
+		
 		        oc expose svc/${APP_NAME}   
 		''' 
             }
@@ -105,8 +103,11 @@ pipeline {
                 timeout(time: 60, unit: 'MINUTES') {
                     input message: "Promote to Staging?"
                 }
-                //TODO: Tag the books:latest image stream as books:stage
-		script {    openshift.withCluster() {    openshift.tag("${DEV_PROJECT}/books:latest", "${STAGE_PROJECT}/books:stage")  } }
+		script {    
+			openshift.withCluster() {    
+				openshift.tag("${DEV_PROJECT}/books:latest", "${STAGE_PROJECT}/books:stage")  
+			} 
+		}
             }
         }
 
